@@ -3,6 +3,7 @@ package com.product.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,6 +23,14 @@ public class ProductController {
     
     @Autowired
     private ProductService productService;
+
+    @Value("${server.port}")
+    private String port;
+
+    @GetMapping(value = "/sayHi")
+    public ResponseEntity<String> sayHi(){
+        return ResponseEntity.ok("Hi from + " + port);
+    }
 
     @GetMapping(value = "/findAll")
     public ResponseEntity<List<Product>> findAllProducts(){
