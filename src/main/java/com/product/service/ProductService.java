@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.product.model.Product;
+import com.product.model.dto.ProductDTO;
 import com.product.repository.ProductRepository;
 
 @Service
@@ -15,8 +18,26 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    private ProductResilience productResilience;
+
+    @Autowired
+    public ProductService(ProductResilience productResilience){
+        this.productResilience = productResilience;
+    }
+
     public Product save(Product product){
-        return productRepository.save(product);
+        ProductDTO productDto = new ProductDTO();
+        productDto.setName(product.getName());
+        productDto.setPrice(product.getPrice());
+        productDto.setQuantity(product.getQuantity());
+
+        ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
+        String body = responseFromFunction.getBody();
+
+        if(responseFromFunction.getStatusCode() == HttpStatus.OK && body.equals("[\"OK\"]"))
+            return productRepository.save(product);
+            
+        return null;
     }
 
     public List<Product> findAll(){
