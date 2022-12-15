@@ -23,7 +23,6 @@ public class ProductResilience {
 
     @CircuitBreaker(name="checkProductBreaker", fallbackMethod = "buildFallBack")
     @Retry(name = "retryservicebeta", fallbackMethod = "retryFallBack") 
-    @Bulkhead(name = "checkProductBulk", fallbackMethod = "checkProductBulkheadFallBack")
     public ResponseEntity<String> checkProduct(ProductDTO product){
         return functionInterface.checkProduct(product);
     }
