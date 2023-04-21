@@ -26,24 +26,20 @@ public class ProductService {
     }
 
     public Product save(Product product){
+        ProductDTO productDto = new ProductDTO(product);
+
+        /*  SPRING FUNCTION */
+        ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
+        String body = responseFromFunction.getBody();
+
+        if(responseFromFunction.getStatusCode() == HttpStatus.OK && !body.equals("[\"OK\"]"))
+            return null;
+        
         Product p = findByName(product.getName());
         if(p==null)
             return productRepository.save(product);
 
 
-        ProductDTO productDto = new ProductDTO();
-        productDto.setName(product.getName());
-        productDto.setPrice(product.getPrice());
-        productDto.setQuantity(product.getQuantity());
-
-        /*  SPRING FUNCTION
-        ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
-        String body = responseFromFunction.getBody();
-
-        if(responseFromFunction.getStatusCode() == HttpStatus.OK && body.equals("[\"OK\"]"))
-            return productRepository.save(product);
-        return null;
-         */ 
         product.setQuantity(p.getQuantity()+product.getQuantity());
         product.setId(p.getId());
         return productRepository.save(product);

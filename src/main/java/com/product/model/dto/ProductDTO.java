@@ -1,9 +1,20 @@
 package com.product.model.dto;
 
+import com.product.model.Product;
+
 public class ProductDTO {
     public String name;
     public Double price;
     public Long quantity;
+
+    public ProductDTO(){
+        
+    }
+    public ProductDTO(Product product){
+        setName(product.getName());
+        setPrice(product.getPrice());
+        setQuantity(product.getQuantity());
+    }
     public String getName() {
         return name;
     }
