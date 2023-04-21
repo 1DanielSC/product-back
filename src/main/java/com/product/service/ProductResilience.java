@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import com.product.model.dto.ProductDTO;
 import com.product.service.interfaces.FunctionServiceInterface;
 
-import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+// import io.github.resilience4j.bulkhead.annotation.Bulkhead;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
