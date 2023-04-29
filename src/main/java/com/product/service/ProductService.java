@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.product.exception.NotFoundException;
 import com.product.model.Product;
 import com.product.model.dto.ProductDTO;
 import com.product.repository.ProductRepository;
@@ -29,11 +30,11 @@ public class ProductService {
         ProductDTO productDto = new ProductDTO(product);
 
         /*  SPRING FUNCTION */
-        ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
-        String body = responseFromFunction.getBody();
+        // ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
+        // String body = responseFromFunction.getBody();
 
-        if(responseFromFunction.getStatusCode() == HttpStatus.OK && !body.equals("[\"OK\"]"))
-            return null;
+        // if(responseFromFunction.getStatusCode() == HttpStatus.OK && !body.equals("[\"OK\"]"))
+        //     return null;
         
         Product p = findByName(product.getName());
         if(p==null)
@@ -84,31 +85,37 @@ public class ProductService {
         return  null;
     }
 
-    public Product sell(String productName, Long quantity){
-        Optional<Product> product = productRepository.findByName(productName);
 
-        if(product.isPresent()){
-            Product requestedProduct = product.get();
-            if(requestedProduct.getQuantity() >= quantity){
-                requestedProduct.setQuantity(requestedProduct.getQuantity() - quantity);
-                productRepository.save(requestedProduct);
-                return requestedProduct;
-            }
+    public Product requestProduct(Product entity){
+        Product product = findByName(entity.getName());
+        if(product == null)
+            throw new NotFoundException("Product not found");
+
+        if(product.getQuantity() >= entity.getQuantity()){
+            long quantityLeft = product.getQuantity() - entity.getQuantity();
+            product.setQuantity(quantityLeft);
+            update(product);
+            entity.setPrice(product.getPrice());
+            return entity;
         }
 
         return null;
     }
 
-    public Product stockUp(String name, Long quantity){
-        Optional<Product> prod = productRepository.findByName(name);
+    public List<Product> increaseQuantity(List<Product> products){
+        if(products.size() == 0)
+            return null;
 
-        if(prod.isPresent()){
-            Product updated = prod.get();
-            updated.setQuantity(updated.getQuantity() + quantity);
-            productRepository.save(updated);
-            return updated;
+        for (Product item : products) {
+
+            Product product = findByName(item.getName());
+            if(product!=null){
+                product.setQuantity(item.getQuantity()+product.getQuantity());
+                productRepository.save(product);
+            }
+            
         }
 
-        return null;
+        return products;
     }
 }

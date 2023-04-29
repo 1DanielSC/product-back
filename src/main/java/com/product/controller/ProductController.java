@@ -3,7 +3,6 @@ package com.product.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,20 +23,13 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @Value("${server.port}")
-    private String port;
 
-    @GetMapping(value = "/sayHi")
-    public ResponseEntity<String> sayHi(){
-        return ResponseEntity.ok("Hi from + " + port);
-    }
-
-    @GetMapping(value = "/findAll")
-    public ResponseEntity<List<Product>> findAllProducts(){
+    @GetMapping
+    public ResponseEntity<List<Product>> findAll(){
         return ResponseEntity.ok(productService.findAll());
     }
 
-    @GetMapping(value = "/findById/{id}")
+    @GetMapping(value = "/{id}")
     public ResponseEntity<Product> findProductById(@PathVariable(value = "id") Long id){
         Product product = productService.findById(id);
         
@@ -47,17 +39,18 @@ public class ProductController {
             return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(value = "/findByName/{name}")
+    @GetMapping(value = "/name/{name}")
     public ResponseEntity<Product> findProductByName(@PathVariable(value = "name") String name){
+        System.out.println(name);
         Product product = productService.findByName(name.toLowerCase());
-        
+
         if(product != null)
             return ResponseEntity.ok(product);
         else
             return ResponseEntity.notFound().build();
     }
 
-    @PostMapping(value = "/save")
+    @PostMapping
     public ResponseEntity<Product> save(@RequestBody Product product){
         Product productSaved = productService.save(product);
 
@@ -67,7 +60,7 @@ public class ProductController {
             return ResponseEntity.badRequest().build();
     }
 
-    @PutMapping(value = "/update")
+    @PutMapping
     public ResponseEntity<Product> update(@RequestBody Product product){
         Product productSaved = productService.update(product);
 
@@ -95,5 +88,15 @@ public class ProductController {
             return ResponseEntity.ok().body(productSaved);
         else
             return ResponseEntity.badRequest().build();
+    }
+
+    @PutMapping("/request")
+    public ResponseEntity<Product> requestProduct(@RequestBody(required = true) Product entity){
+        return ResponseEntity.ok(productService.requestProduct(entity));
+    }
+
+    @PutMapping(value = "/products")
+    public ResponseEntity<List<Product>> increaseQuantity(@RequestBody List<Product> products){
+        return ResponseEntity.ok(productService.increaseQuantity(products));
     }
 }
