@@ -1,7 +1,10 @@
 package com.product;
 
+import java.util.concurrent.Executors;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -11,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 //import brave.sampler.Sampler;
 
 @SpringBootApplication
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @EnableFeignClients
 public class ProductBackApplication {
 
@@ -24,9 +27,14 @@ public class ProductBackApplication {
 	// 	return Sampler.ALWAYS_SAMPLE;
 	// }
 
-	@LoadBalanced
-	@Bean
-	public RestTemplate getRestTemplate(){
-		return new RestTemplate();
-	}
+	// @Bean
+	// public TomcatProtocolHandlerCustomizer<?> protocolHandlerVirtualThreadExecutorCustomizer() {
+	// 	return protocolHandler -> protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+	// }
+
+	// @LoadBalanced
+	// @Bean
+	// public RestTemplate getRestTemplate(){
+	// 	return new RestTemplate();
+	// }
 }

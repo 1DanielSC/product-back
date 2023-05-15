@@ -23,6 +23,10 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("/thread")
+    public void thread(){
+        System.out.println(Thread.currentThread().toString());
+    } 
 
     @GetMapping
     public ResponseEntity<List<Product>> findAll(){
@@ -55,7 +59,7 @@ public class ProductController {
         Product productSaved = productService.save(product);
 
         if(productSaved != null)
-            return ResponseEntity.ok().body(product);
+            return ResponseEntity.ok().body(productSaved);
         else
             return ResponseEntity.badRequest().build();
     }

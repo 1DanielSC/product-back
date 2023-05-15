@@ -27,7 +27,7 @@ public class ProductService {
     }
 
     public Product save(Product product){
-        ProductDTO productDto = new ProductDTO(product);
+        //ProductDTO productDto = new ProductDTO(product);
 
         /*  SPRING FUNCTION */
         // ResponseEntity<String> responseFromFunction = productResilience.checkProduct(productDto);
@@ -40,10 +40,8 @@ public class ProductService {
         if(p==null)
             return productRepository.save(product);
 
-
-        product.setQuantity(p.getQuantity()+product.getQuantity());
-        product.setId(p.getId());
-        return productRepository.save(product);
+        p.setQuantity(p.getQuantity()+product.getQuantity());
+        return productRepository.save(p);
     }
 
     public List<Product> findAll(){
