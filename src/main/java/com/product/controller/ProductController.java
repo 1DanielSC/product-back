@@ -45,8 +45,7 @@ public class ProductController {
 
     @GetMapping(value = "/name/{name}")
     public ResponseEntity<Product> findProductByName(@PathVariable(value = "name") String name){
-        System.out.println(name);
-        Product product = productService.findByName(name.toLowerCase());
+        Product product = productService.findByName(name);
 
         if(product != null)
             return ResponseEntity.ok(product);
