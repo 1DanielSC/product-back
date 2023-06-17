@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 //import brave.sampler.Sampler;
 
 @SpringBootApplication
-//@EnableDiscoveryClient
+@EnableDiscoveryClient
 @EnableFeignClients
 public class ProductBackApplication {
 
@@ -32,9 +32,9 @@ public class ProductBackApplication {
 	// 	return protocolHandler -> protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
 	// }
 
-	// @LoadBalanced
-	// @Bean
-	// public RestTemplate getRestTemplate(){
-	// 	return new RestTemplate();
-	// }
+	@LoadBalanced
+	@Bean
+	public RestTemplate getRestTemplate(){
+		return new RestTemplate();
+	}
 }
