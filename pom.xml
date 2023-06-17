@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.6</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.example</groupId>
@@ -17,7 +17,6 @@
 		<java.version>19</java.version>
 		<spring-cloud.version>2022.0.2</spring-cloud.version>
 		<resilience4j.version>2.0.2</resilience4j.version>
-		<spring.version>2.7.0</spring.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -105,7 +104,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-aop</artifactId>
-			<version>${spring.version}</version>
+			<version>3.1.0</version>
 		</dependency>
 		<!-- ZIPKING E SLEUTH
 		<dependency>
