@@ -1,9 +1,11 @@
 package com.product.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,7 +19,7 @@ import com.product.repository.ProductRepository;
 public class ProductService {
     
     @Autowired
-    private ProductRepository productRepository;
+    private ProductRepository repository;
 
     private ProductResilience productResilience;
 
@@ -26,7 +28,8 @@ public class ProductService {
         this.productResilience = productResilience;
     }
 
-    public Product save(Product product){
+    @CachePut(value = "products", key = "#entity.name")
+    public Product save(Product entity){
         //ProductDTO productDto = new ProductDTO(product);
 
         /*  SPRING FUNCTION */
@@ -35,59 +38,60 @@ public class ProductService {
 
         // if(responseFromFunction.getStatusCode() == HttpStatus.OK && !body.equals("[\"OK\"]"))
         //     return null;
+        try {
+            Product product = findByName(entity.getName());
+            product.setQuantity(product.getQuantity()+entity.getQuantity());
+            return repository.save(product);
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        return repository.save(entity);
         
-        Product p = findByName(product.getName());
-        if(p==null)
-            return productRepository.save(product);
-
-        p.setQuantity(p.getQuantity()+product.getQuantity());
-        return productRepository.save(p);
     }
 
+    @Cacheable("products")
     public List<Product> findAll(){
-        return productRepository.findAll();
+        System.out.println("Cache nao tem os valores ainda...");
+        return repository.findAll();
     }
 
+    @Cacheable(value = "products", key = "name")
     public Product findByName(String name){
-        Optional<Product> product = productRepository.findByName(name);
-        return product.isPresent() ? product.get() : null;
+        return repository.findByName(name)
+        .orElseThrow(() -> new NotFoundException("Product with name " + name + " was not found."));
     }
 
+    @Cacheable(value = "products", key = "id")
     public Product findById(Long id){
-        Optional<Product> product = productRepository.findById(id);
-        return product.isPresent() ? product.get() : null;
+        return repository.findById(id)
+        .orElseThrow(() -> new NotFoundException("Product with this id was not found."));
     }
 
-    public Product update(Product product){
-        Optional<Product> prod = productRepository.findById(product.getId());
-        return prod.isPresent() ? productRepository.save(product) : null;
+    @CacheEvict(value = "products", allEntries = true)
+    @CachePut(value = "products", key = "#entity.name")
+    public Product update(Product entity){
+        findByName(entity.getName());
+        return repository.save(entity);
     }
 
+    @CacheEvict(value = "products", key = "id")
     public Product deleteById(Long id){
-        Optional<Product> prod = productRepository.findById(id);
-
-        if(prod.isPresent()){
-            productRepository.deleteById(id);
-            return prod.get();
-        }
-        return  null;
+        Product product = findById(id);
+        repository.deleteById(id);
+        return product;
     }
 
+    @CacheEvict(value = "products", key = "name")
     public Product deleteByName(String name){
-        Optional<Product> prod = productRepository.findByName(name);
-
-        if(prod.isPresent()){
-            productRepository.deleteById(prod.get().getId());
-            return prod.get();
-        }
-        return  null;
+        Product product = findByName(name);
+        return deleteById(product.getId());
     }
 
 
     public Product requestProduct(Product entity){
         Product product = findByName(entity.getName());
-        if(product == null)
-            throw new NotFoundException("Product not found");
 
         if(product.getQuantity() >= entity.getQuantity()){
             long quantityLeft = product.getQuantity() - entity.getQuantity();
@@ -106,10 +110,15 @@ public class ProductService {
 
         for (Product item : products) {
 
-            Product product = findByName(item.getName());
-            if(product!=null){
-                product.setQuantity(item.getQuantity()+product.getQuantity());
-                productRepository.save(product);
+            try {
+                
+                Product product = findByName(item.getName());
+                if(product!=null){
+                    product.setQuantity(item.getQuantity()+product.getQuantity());
+                    repository.save(product);
+                }
+            } catch (Exception e) {
+                // TODO: handle exception
             }
             
         }
