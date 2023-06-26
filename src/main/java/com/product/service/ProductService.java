@@ -51,10 +51,24 @@ public class ProductService {
         
     }
 
+    //@Cacheable("products")
+    // public List<Product> findAll(){
+    //     System.out.println("Cache nao tem os valores ainda...");
+    //     List<Product> products = repository.findAll();
+    //     for (Product product : products) {
+    //         cacheByProductName(product);
+    //     }
+    //     return products;
+    // }
+
     @Cacheable("products")
     public List<Product> findAll(){
-        System.out.println("Cache nao tem os valores ainda...");
         return repository.findAll();
+    }
+
+    @Cacheable(value = "products", key = "#entity.name")
+    private Product cacheByProductName(Product entity){
+        return entity;
     }
 
     @Cacheable(value = "products", key = "name")

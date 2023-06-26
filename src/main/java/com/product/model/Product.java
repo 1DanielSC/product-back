@@ -55,4 +55,9 @@ public class Product implements Serializable{
         this.price = price;
     }
 
+    @Override
+    public String toString() {
+        return "Product [id=" + id + "]";
+    }
+
 }
