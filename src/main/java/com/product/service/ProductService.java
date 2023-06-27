@@ -28,6 +28,7 @@ public class ProductService {
         this.productResilience = productResilience;
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     @CachePut(value = "products", key = "#entity.name")
     public Product save(Product entity){
         //ProductDTO productDto = new ProductDTO(product);
@@ -129,7 +130,8 @@ public class ProductService {
                 Product product = findByName(item.getName());
                 if(product!=null){
                     product.setQuantity(item.getQuantity()+product.getQuantity());
-                    repository.save(product);
+                    //repository.save(product);
+                    update(product);
                 }
             } catch (Exception e) {
                 // TODO: handle exception
@@ -139,4 +141,5 @@ public class ProductService {
 
         return products;
     }
+
 }
