@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,13 @@ public class ProductService {
     }
 
     @CacheEvict(value = "products", allEntries = true)
-    @CachePut(value = "products", key = "#entity.name")
+    //@CachePut(value = "products", key = "#entity.name")
+    @Caching(
+        put = {
+            @CachePut(value = "product", key = "#entity.id"),
+            @CachePut(value = "product", key = "#entity.name")
+        }
+    )
     public Product save(Product entity){
         //ProductDTO productDto = new ProductDTO(product);
 
@@ -52,53 +59,68 @@ public class ProductService {
         
     }
 
-    //@Cacheable("products")
-    // public List<Product> findAll(){
-    //     System.out.println("Cache nao tem os valores ainda...");
-    //     List<Product> products = repository.findAll();
-    //     for (Product product : products) {
-    //         cacheByProductName(product);
-    //     }
-    //     return products;
-    // }
 
     @Cacheable("products")
     public List<Product> findAll(){
+        System.out.println("FindAll: indo no banco...");
         return repository.findAll();
     }
 
-    @Cacheable(value = "products", key = "#entity.name")
+    @Cacheable(value = "product", key = "#entity.name")
     private Product cacheByProductName(Product entity){
         return entity;
     }
 
-    @Cacheable(value = "products", key = "name")
+    @Cacheable(value = "product", key = "#name")
     public Product findByName(String name){
+        System.out.println("FindByName: indo no banco...");
         return repository.findByName(name)
         .orElseThrow(() -> new NotFoundException("Product with name " + name + " was not found."));
     }
 
-    @Cacheable(value = "products", key = "id")
+    @Cacheable(value = "product", key = "#id")
     public Product findById(Long id){
+        System.out.println("FindById: indo no banco...");
         return repository.findById(id)
         .orElseThrow(() -> new NotFoundException("Product with this id was not found."));
     }
 
-    @CacheEvict(value = "products", allEntries = true)
-    @CachePut(value = "products", key = "#entity.name")
     public Product update(Product entity){
         findByName(entity.getName());
+        return updateCache(entity);
+    }
+    
+    @CacheEvict(value = "products", allEntries = true)
+    @Caching(
+        put = {
+            @CachePut(value = "product", key = "#entity.id"),
+            @CachePut(value = "product", key = "#entity.name")
+        }
+    )
+    private Product updateCache(Product entity){
         return repository.save(entity);
     }
 
-    @CacheEvict(value = "products", key = "id")
+    @Caching(
+        evict = {
+            @CacheEvict(value = "product", key = "#id"),
+            @CacheEvict(value = "products", allEntries = true)
+        }
+    )
     public Product deleteById(Long id){
         Product product = findById(id);
         repository.deleteById(id);
         return product;
     }
 
-    @CacheEvict(value = "products", key = "name")
+    //@CacheEvict(value = "product", key = "#name")
+    @Caching(
+        evict = {
+            @CacheEvict(value = "product", key = "#name"),
+            @CacheEvict(value = "product", key = "#id"),
+            @CacheEvict(value = "products", allEntries = true)
+        }
+    )
     public Product deleteByName(String name){
         Product product = findByName(name);
         return deleteById(product.getId());
