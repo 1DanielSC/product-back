@@ -29,12 +29,12 @@ public class ProductService {
         this.productResilience = productResilience;
     }
 
-    @CacheEvict(value = "products", allEntries = true)
-    //@CachePut(value = "products", key = "#entity.name")
     @Caching(
         put = {
-            @CachePut(value = "product", key = "#entity.id"),
             @CachePut(value = "product", key = "#entity.name")
+        },
+        evict = {
+            @CacheEvict(value = "products", allEntries = true)
         }
     )
     public Product save(Product entity){
@@ -113,7 +113,6 @@ public class ProductService {
         return product;
     }
 
-    //@CacheEvict(value = "product", key = "#name")
     @Caching(
         evict = {
             @CacheEvict(value = "product", key = "#name"),
